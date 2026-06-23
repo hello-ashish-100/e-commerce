@@ -1,0 +1,151 @@
+.heading {
+  margin-bottom: 28px;
+}
+
+.heading p {
+  margin: 0 0 8px;
+  color: #776b5e;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.searchSummary {
+  margin: 10px 0 0;
+  color: #776b5e;
+  font-size: 0.95rem;
+}
+
+.message {
+  padding: 18px;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffaf3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
+  border: 1px solid #e2d7c8;
+  border-radius: 8px;
+  background: #fffaf3;
+}
+
+.imageLink {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 24px;
+  background: #fff;
+}
+
+.imageLink img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.brand {
+  margin: 0;
+  color: #776b5e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.productName {
+  color: #1c1a17;
+  font-weight: 700;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.productName:hover {
+  text-decoration: underline;
+}
+
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: auto 0 0;
+}
+
+.price {
+  font-weight: 700;
+}
+
+.originalPrice {
+  color: #8a8177;
+  font-size: 0.9rem;
+  text-decoration: line-through;
+}
+
+.cardBody button {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: #1c1a17;
+  color: #fff;
+  padding: 11px 14px;
+  cursor: pointer;
+}
+
+.cardBody button:disabled {
+  background: #b4aca2;
+  cursor: not-allowed;
+}
+
+.quantityPicker {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid #1c1a17;
+  border-radius: 6px;
+  background: #1c1a17;
+}
+
+.quantityPicker button {
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.quantityPicker button:disabled {
+  color: #8a8177;
+  cursor: not-allowed;
+}
+
+.quantityPicker span {
+  text-align: center;
+  font-weight: 800;
+  color: #fff;
+}
