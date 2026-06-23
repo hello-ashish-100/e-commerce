@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { fetchProductById } from '../../api/products'
@@ -10,16 +10,19 @@ import {
   productSizes,
 } from '../../data/productMeta'
 import { useGetApi } from '../../hooks/useGetApi'
+import { buildCartItemId } from '../../stores/CartProvider'
 import { useCart } from '../../stores/useCart'
 import { formatMoney } from '../../utils/money'
 import styles from './ProductDetailPage.module.scss'
 
 export function ProductDetailPage() {
   const { id } = useParams()
-  const { addItem } = useCart()
+  const { addItem, items } = useCart()
   const [searchParams, setSearchParams] = useSearchParams()
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [justAdded, setJustAdded] = useState(false)
+  const addedTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
   const {
     data: product,
     error,
@@ -44,6 +47,22 @@ export function ProductDetailPage() {
   const isSoldOut = !selectedVariant || selectedVariant.stockState === 'sold-out'
   const maxQuantity = selectedVariant?.quantityAvailable ?? 0
 
+  const cartQuantity = useMemo(() => {
+    if (!selectedVariant || !product) {
+      return 0
+    }
+
+    const cartItemId = buildCartItemId({
+      productId: product.id,
+      color: selectedVariant.color,
+      size: selectedVariant.size,
+    })
+
+    return items.find((item) => item.id === cartItemId)?.quantity ?? 0
+  }, [items, product, selectedVariant])
+
+  const reachedMax = maxQuantity > 0 && cartQuantity + quantity > maxQuantity
+
   useEffect(() => {
     if (!product) {
       return
@@ -66,6 +85,14 @@ export function ProductDetailPage() {
     setQuantity((currentQuantity) => Math.min(Math.max(currentQuantity, 1), maxQuantity))
   }, [maxQuantity])
 
+  useEffect(() => {
+    return () => {
+      if (addedTimeoutRef.current) {
+        clearTimeout(addedTimeoutRef.current)
+      }
+    }
+  }, [])
+
   function updateVariant(nextParams: { color?: string; size?: string }) {
     setSearchParams({
       color: nextParams.color ?? selectedColor,
@@ -87,19 +114,28 @@ export function ProductDetailPage() {
       return
     }
 
-    addItem({
-      productId: product.id,
-      name: product.title,
-      brand: metadata.brand,
-      image: metadata.gallery[activeImageIndex]?.src ?? product.image,
-      color: selectedVariant.color,
-      size: selectedVariant.size,
-      unitPrice: metadata.unitPrice,
-      originalPrice: metadata.originalPrice,
-      maxQuantity: selectedVariant.quantityAvailable,
-      stockState: selectedVariant.stockState,
-      quantity,
-    })
+    addItem(
+      {
+        productId: product.id,
+        name: product.title,
+        brand: metadata.brand,
+        image: metadata.gallery[activeImageIndex]?.src ?? product.image,
+        color: selectedVariant.color,
+        size: selectedVariant.size,
+        unitPrice: metadata.unitPrice,
+        originalPrice: metadata.originalPrice,
+        maxQuantity: selectedVariant.quantityAvailable,
+        stockState: selectedVariant.stockState,
+        quantity,
+      },
+      { openCart: false },
+    )
+
+    setJustAdded(true)
+    if (addedTimeoutRef.current) {
+      clearTimeout(addedTimeoutRef.current)
+    }
+    addedTimeoutRef.current = setTimeout(() => setJustAdded(false), 1000)
   }
 
   if (loading) {
@@ -226,12 +262,18 @@ export function ProductDetailPage() {
         </div>
 
         <button
-          className={styles.addButton}
+          className={`${styles.addButton} ${justAdded ? styles.addButtonAdded : ''}`}
           type="button"
-          onClick={handleAddToCart}
-          disabled={isSoldOut}
+          onClick={!justAdded && handleAddToCart}
+          disabled={isSoldOut || reachedMax  }
         >
-          {isSoldOut ? 'Sold out' : 'Add to Cart'}
+          {isSoldOut
+            ? 'Sold out'
+            : reachedMax
+              ? 'Max quantity in cart'
+              : justAdded
+                ? 'Added'
+                : 'Add to Cart'}
         </button>
       </div>
     </section>

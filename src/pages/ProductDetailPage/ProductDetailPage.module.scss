@@ -243,6 +243,10 @@
   cursor: not-allowed;
 }
 
+.addButtonAdded {
+  background: #1f7a4d;
+}
+
 @media (max-width: 767px) {
   .page {
     grid-template-columns: 1fr;
